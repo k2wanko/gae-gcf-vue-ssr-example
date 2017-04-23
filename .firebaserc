@@ -1,0 +1,5 @@
+{
+  "projects": {
+    "default": "gae-go-functions-ssr-example"
+  }
+}

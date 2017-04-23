@@ -21,23 +21,12 @@
 
 <script>
 import Vue from 'vue'
-import firebase from 'firebase'
+import Firebase from 'firebase'
 
-
-firebase.initializeApp({
-  apiKey: "AIzaSyBgDiWqxHuD9ixMLAqjT4Rp0_TVhtZBnfE",
-  authDomain: "gae-go-functions-ssr-example.firebaseapp.com",
-  databaseURL: "https://gae-go-functions-ssr-example.firebaseio.com",
-  projectId: "gae-go-functions-ssr-example",
-  storageBucket: "gae-go-functions-ssr-example.appspot.com",
-  messagingSenderId: "103140705885"
-})
-
-const auth = firebase.auth()
-const database = firebase.database()
+import { store } from './app'
 
 function fetchGreetings() {
-  return database.ref('greetings').once('value').then(data => data.val())
+  return fetch('https://gae-go-functions-ssr-example.firebaseio.com/greetings.json').then(res => res.json())
 }
 
 export default {
@@ -47,7 +36,7 @@ export default {
       user: null,
       name: '',
       newContent: '',
-      greetings: {},
+      greetings: store.state.greetings,
     }
   },
   computed: {
@@ -56,6 +45,8 @@ export default {
     }
   },
   mounted() {
+    const auth = Firebase.auth()
+    const database = Firebase.database()
     return new Promise((resolve, reject) => {
       auth.onAuthStateChanged(user => {
         if (user) {
@@ -73,7 +64,7 @@ export default {
         Vue.set(this.greetings, data.key, data.val())
       })
       ref.on('child_removed', data => {
-        Vue.delete(greetings, data.key)
+        Vue.delete(this.greetings, data.key)
       })
     })
   },
@@ -86,14 +77,15 @@ export default {
       if (!this.user) {
         return
       }
-
+      
+      const database = Firebase.database()
       const newPostKey = database.ref().child('greetings').push().key
       const updates = {}
       updates['/greetings/' + newPostKey] = {
         uid: this.user.uid,
         name: this.name || '???',
         content: this.newContent,
-        created: firebase.database.ServerValue.TIMESTAMP,
+        created: Firebase.database.ServerValue.TIMESTAMP,
       }
 
       return database.ref().update(updates).then(()=> {
@@ -103,6 +95,7 @@ export default {
     preFetch() {
       return fetchGreetings().then(data => {
         Object.keys(data).forEach(key => Vue.set(this.greetings, key, data[key]))
+        store.state.greetings = this.greetings
       })
     }
   }
