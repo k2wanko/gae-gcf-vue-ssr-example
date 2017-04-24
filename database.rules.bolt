@@ -1,0 +1,6 @@
+// Simple Security Rules
+
+path / {
+    read() { true }
+    write() { auth != null }
+}
