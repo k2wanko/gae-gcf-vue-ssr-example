@@ -66,9 +66,9 @@ const clientConfig = {
 }
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = '#source-map'
+  clientConfig.devtool = '#source-map'
   // http://vue-loader.vuejs.org/en/workflow/production.html
-  module.exports.plugins = (module.exports.plugins || []).concat([
+  clientConfig.plugins = (clientConfig.plugins || []).concat([
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"'
