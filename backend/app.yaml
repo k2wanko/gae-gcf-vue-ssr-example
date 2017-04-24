@@ -2,5 +2,8 @@ runtime: go
 api_version: go1
 
 handlers:
+- url: /(.+\.(js|css|png))$
+  static_files: dist/\1
+  upload: dist/(.+\.(js|css|png))$
 - url: /.*
   script: _go_app
